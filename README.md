@@ -8,4 +8,4 @@ This project takes publicly available data from the City of Asheville and shows 
 
 [View it here](http://wax9.com/publicart)
 
-<img src="https://github.com/bitslayer42/publicart/tree/master/src/images/urbantrail.png" >
+<img src="https://github.com/bitslayer42/publicart/raw/master/src/images/urbantrail.png" >
