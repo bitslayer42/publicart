@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import L from 'leaflet';
-import polyUtil from 'polyline-encoded';
+import L from 'leaflet'; 
 import 'leaflet/dist/leaflet.css';
 
 // map configuration properties 
@@ -32,9 +31,6 @@ class Map extends Component {
     super(props);
     this.state = {
       map: null,
-      tileLayer: null,
-      geojsonLayer: null,
-      geojson: null,
     };
     this._mapNode = null;
     this.onEachFeature = this.onEachFeature.bind(this);
@@ -42,35 +38,24 @@ class Map extends Component {
 
   }
 
-  componentDidMount() {
+  componentDidMount() { 
     // create the Leaflet map object
-    if (!this.state.map) this.init(this._mapNode);
-    if( this.props.geojson){
-      this.update();
+    if (!this.state.map) {
+      this.init(this._mapNode); 
     }
   }
 
   componentDidUpdate(prevProps, prevState) { 
-    if(prevProps.geojson !== this.props.geojson){
-      this.update();
+
+    if (this.state.map ) {
+      this.addPolylineLayer(this.props.geojson);
+      this.addGeoJSONLayer(this.props.geojson);
+      this.addPoppedUp();
     }
-    //add encoded polyline
-    const encoded = "acgxEbjzvNWJx@tFNzAFl@[IY~BcAbD`CjFmBYsE`A}CeAg@q@xE{C}@cKyCoCwEd@i@qDnCkElCNR~AxEcAL_C?k@VAnArC^Qv@[nBUlA`E";
+  }
 
-    var polyline = L.Polyline.fromEncoded(encoded);
-    console.log(JSON.stringify(polyline.getLatLngs()));
-    
-    const latlngs = polyUtil.decode(encoded);
-    L.polyline(latlngs, {color: 'lightgreen'}).addTo(this.state.map);
-
-
-    // //add polyline
-    // this.state.geojson && this.state.geojson.features
-    // .filter((feature)=>{return feature.properties.ut_station!==0;})
-    // .sort((a,b)=>{return parseInt(a.properties.ut_station, 10) - parseInt(b.properties.ut_station, 10)})
-    // .map((feature,ix) => {})
-
-
+  addPoppedUp(){
+    //If one station has been selected, pop it up.
     if(this.props.selectedStation){ 
       const station = this.props.selectedStation;
       const popupContent = (station.properties.ut_station>0)
@@ -88,44 +73,35 @@ class Map extends Component {
     }
   }
 
-  update(){
-    this.setState({
-      geojson: this.props.geojson,
-    },()=>{
-      // code to run when the component receives new props or state
-      // check to see if geojson is stored, map is created, and geojson overlay needs to be added
-        if (this.state.geojson && this.state.map && !this.state.geojsonLayer) {
-          // add the geojson overlay
-          this.addGeoJSONLayer(this.state.geojson);
-        }
-    });
-
-  }
-
   componentWillUnmount() {
-    // code to run just before unmounting the component
-    // this destroys the Leaflet map object & related event listeners
     this.state.map.remove();
   }
 
 
   addGeoJSONLayer(geojson) {
-    // create a native Leaflet GeoJSON SVG Layer to add as an interactive overlay to the map
-    // an options object is passed to define functions for customizing the layer
+    // Add stations
     const geojsonLayer = L.geoJson(geojson, {
       onEachFeature: this.onEachFeature,
       pointToLayer: this.pointToLayer,
       //filter: ()=>true,
     });
-    // add our GeoJSON layer to the Leaflet map object
+
     geojsonLayer.addTo(this.state.map);
-    // store the Leaflet GeoJSON layer in our component state for use later
-    this.setState({ geojsonLayer });
-    // fit the geographic extent of the GeoJSON layer within the map's bounds / viewport
+
     this.zoomToFeature(geojsonLayer);
 
   }
 
+  addPolylineLayer(geojson){
+    //add polyline
+    let latlngs = geojson.features
+    .filter((feature)=>{return feature.properties.ut_station!==0;})
+    .sort((a,b)=>{return parseInt(a.properties.ut_station, 10) - parseInt(b.properties.ut_station, 10)})
+    .map((feature) => {
+      return [feature.geometry.coordinates[1],feature.geometry.coordinates[0]];
+    })
+    L.polyline(latlngs, {color: '#4f4'}).addTo(this.state.map);
+  }
 
 
   zoomToFeature(target) {
@@ -157,7 +133,7 @@ class Map extends Component {
   }
 
   onEachFeature(feature, layer) { 
-      // assemble the HTML for the markers' popups (Leaflet's bindPopup method doesn't accept React JSX)
+      // marker popups 
       const popupContent = (feature.properties.ut_station>0)
         ? `<h3>${feature.properties.name}</h3>
         <img src="${feature.properties.image}" width="140px">
@@ -166,22 +142,21 @@ class Map extends Component {
         : `<h3>${feature.properties.name}</h3>
         <img src="${feature.properties.image}" width="140px">`;
 
-      // add our popups
       layer.bindPopup(popupContent);
   }
 
   init(id) {
     if (this.state.map) return;
-    // this function creates the Leaflet map object and is called after the Map component mounts
+    // create the Leaflet map object 
     let map = L.map(id, config.params);
     L.control.zoom({ position: "bottomleft"}).addTo(map);
     L.control.scale({ position: "bottomleft"}).addTo(map);
 
     // a TileLayer is used as the "basemap"
-    const tileLayer = L.tileLayer(config.tileLayer.uri, config.tileLayer.params).addTo(map);
+    L.tileLayer(config.tileLayer.uri, config.tileLayer.params).addTo(map);
 
-    // set our state to include the tile layer
-    this.setState({ map, tileLayer });
+    // set our state 
+    this.setState({ map });
   }
 
   render() {

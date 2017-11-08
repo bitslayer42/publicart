@@ -26,16 +26,14 @@ export default class Card extends React.Component {
       picClasses: newpicClasses
     });
   }
-  
+
   handleShowOnMap(){
     this.props.handleShowOnMap(this.props.art);
   }
 
   render() {
     const art = this.props.art.properties;
-    //const loc = this.props.art.geometry.coordinates; 
     const imgName = {backgroundImage:`url('${art.image}')`};
-    //const maploc = "https://maps.google.com/maps?q=" + loc[1] + "," + loc[0] + "&z=18";
     return (
       <div className="card">
         <div className={this.state.picClasses.join(' ')} style={imgName} onClick={this.animateMe}>
