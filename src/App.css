@@ -1,15 +1,19 @@
 .App {
   text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .App-header {
   background-color: #222;
   background-image: url(images/cityhallrainbow.jpg);
+  background-position-x: center;
   background-size: cover;
   height: 150px;
   padding: 20px;
   color: white;
   font-size: 2em;
+  line-height: 1.2em;
   text-shadow:
   -1px -1px 0 #000,  
    1px -1px 0 #000,
@@ -20,11 +24,10 @@
 
 .App-title {
   font-size: 1.5em;
+  margin: 0;
 }
 
-.App-body {
-  font-size: large;
-}
+
 
 .App-ut-num {
   position: absolute;
@@ -36,4 +39,14 @@
   background-color: white;
 }
 
+
+#root, #map, #mapUI {
+  width: inherit;
+  height: inherit;
+  background-color: white;
+}
+#mapUI {
+  height: 80vh;
+  z-index: 3;
+}
 
