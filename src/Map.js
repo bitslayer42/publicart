@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import L from 'leaflet';
+import polyUtil from 'polyline-encoded';
 import 'leaflet/dist/leaflet.css';
 
 // map configuration properties 
@@ -53,6 +54,23 @@ class Map extends Component {
     if(prevProps.geojson !== this.props.geojson){
       this.update();
     }
+    //add encoded polyline
+    const encoded = "acgxEbjzvNWJx@tFNzAFl@[IY~BcAbD`CjFmBYsE`A}CeAg@q@xE{C}@cKyCoCwEd@i@qDnCkElCNR~AxEcAL_C?k@VAnArC^Qv@[nBUlA`E";
+
+    var polyline = L.Polyline.fromEncoded(encoded);
+    console.log(JSON.stringify(polyline.getLatLngs()));
+    
+    const latlngs = polyUtil.decode(encoded);
+    L.polyline(latlngs, {color: 'lightgreen'}).addTo(this.state.map);
+
+
+    // //add polyline
+    // this.state.geojson && this.state.geojson.features
+    // .filter((feature)=>{return feature.properties.ut_station!==0;})
+    // .sort((a,b)=>{return parseInt(a.properties.ut_station, 10) - parseInt(b.properties.ut_station, 10)})
+    // .map((feature,ix) => {})
+
+
     if(this.props.selectedStation){ 
       const station = this.props.selectedStation;
       const popupContent = (station.properties.ut_station>0)
